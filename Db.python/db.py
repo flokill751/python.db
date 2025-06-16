@@ -1,7 +1,7 @@
 import sqlite3
 import os
 
-# Caminho absoluto até o banco
+
 base = os.path.dirname(os.path.abspath(__file__))
 CAMINHO_DB = os.path.join(base, 'dados', 'financas.db')
 

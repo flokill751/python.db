@@ -3,13 +3,13 @@ from db import BancoDeDados
 def main():
     db = BancoDeDados()
 
-    # Cadastrar uma categoria
+
     if not db.listar_categorias():
         db.inserir_categoria("Salário")
 
     categoria_id = db.listar_categorias()[0][0]
 
-    # Inserir uma movimentação
+  
     db.inserir_movimentacao(
         tipo="Receita",
         descricao="Pagamento mensal",
@@ -18,8 +18,7 @@ def main():
         categoria_id=categoria_id
     )
 
-    # Mostrar movimentações
-    print("📋 Movimentações:")
+    print("Movimentações Garaio:")
     for mov in db.listar_movimentacoes():
         print(mov)
 
