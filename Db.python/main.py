@@ -18,7 +18,7 @@ def main():
         categoria_id=categoria_id
     )
 
-    print("Movimentações Garaio:")
+    print("Movimentações:")
     for mov in db.listar_movimentacoes():
         print(mov)
 
