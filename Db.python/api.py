@@ -28,6 +28,7 @@ def listar_movimentacoes():
 @app.route('/movimentacoes', methods=['POST'])
 def inserir_movimentacao():
     data = request.json
+
     tipo = data.get('tipo')
     descricao = data.get('descricao')
     valor = data.get('valor')
