@@ -1,55 +1,74 @@
-from flask import Flask, request, jsonify
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+from typing import List, Optional
 from db import BancoDeDados
 
-app = Flask(__name__)
+app = FastAPI()
 db = BancoDeDados()
 
-@app.route('/ping')
-def ping():
-    return 'Pong!', 200
+# Modelos para validação e tipagem dos dados recebidos/enviados
 
-@app.route('/movimentacoes', methods=['GET'])
-def listar_movimentacoes():
+class Movimentacao(BaseModel):
+    id: int
+    tipo: str
+    descricao: str
+    valor: float
+    data: str
+    categoria: str
+
+class MovimentacaoInput(BaseModel):
+    tipo: str
+    descricao: str
+    valor: float
+    data: str
+    categoria_id: int
+
+@app.get("/ping")
+async def ping():
+    return "Pong!"
+
+@app.get("/movimentacoes", response_model=List[Movimentacao])
+async def listar_movimentacoes():
     movimentacoes = db.listar_movimentacoes()
     resultado = []
-
     for mov in movimentacoes:
-        resultado.append({
-            'id': mov[0],
-            'tipo': mov[1],
-            'descricao': mov[2],
-            'valor': mov[3],
-            'data': mov[4],
-            'categoria': mov[5]
-        })
+        resultado.append(Movimentacao(
+            id=mov[0],
+            tipo=mov[1],
+            descricao=mov[2],
+            valor=mov[3],
+            data=mov[4],
+            categoria=mov[5]
+        ))
+    return resultado
 
-    return jsonify(resultado), 200
+@app.post("/movimentacoes", status_code=201)
+async def inserir_movimentacao(mov: MovimentacaoInput):
+    try:
+        db.inserir_movimentacao(
+            mov.tipo,
+            mov.descricao,
+            mov.valor,
+            mov.data,
+            mov.categoria_id
+        )
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return {"message": "Movimentação inserida com sucesso!"}
 
-@app.route('/movimentacoes', methods=['POST'])
-def inserir_movimentacao():
-    data = request.json
+@app.put("/movimentacoes/{id}")
+async def atualizar_movimentacao(id: int, mov: MovimentacaoInput):
+    try:
+        db.atualizar_movimentacao(
+            id,
+            tipo=mov.tipo,
+            descricao=mov.descricao,
+            valor=mov.valor,
+            data=mov.data,
+            categoria_id=mov.categoria_id,
+        )
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return {"message": "Movimentação atualizada com sucesso!"}
 
-    tipo = data.get('tipo')
-    descricao = data.get('descricao')
-    valor = data.get('valor')
-    data_mov = data.get('data')
-    categoria_id = data.get('categoria_id')
 
-    db.inserir_movimentacao(tipo, descricao, valor, data_mov, categoria_id)
-    return jsonify({'message': 'Movimentação inserida com sucesso!'}), 201
-
-@app.route('/movimentacoes/<int:id>', methods=['PUT'])
-def atualizar_movimentacao(id):
-    data = request.get_json()
-    db.atualizar_movimentacao(
-        id,
-        tipo=data['tipo'],
-        descricao=data['descricao'],
-        valor=data['valor'],
-        data=data['data'],
-        categoria_id=data['categoria_id'],
-    )
-    return jsonify({'message': 'Movimentação atualizada com sucesso!'}), 200
-
-if __name__ == '__main__':
-    app.run(debug=True)

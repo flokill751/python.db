@@ -1,15 +1,20 @@
+from fastapi import FastAPI
 from db import BancoDeDados
 
-def main():
-    db = BancoDeDados()
+app = FastAPI()
 
+@app.get("/ping")
+async def ping():
+    return "Pong!"
+
+def inicializar_dados():
+    db = BancoDeDados()
 
     if not db.listar_categorias():
         db.inserir_categoria("Salário")
 
     categoria_id = db.listar_categorias()[0][0]
 
-  
     db.inserir_movimentacao(
         tipo="Receita",
         descricao="Pagamento mensal",
@@ -18,11 +23,10 @@ def main():
         categoria_id=categoria_id
     )
 
-    print("Movimentações:")
-    for mov in db.listar_movimentacoes():
-        print(mov)
-
     db.fechar()
 
 if __name__ == "__main__":
-    main()
+    inicializar_dados()
+
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=5000)
