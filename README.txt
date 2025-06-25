@@ -2,7 +2,8 @@
 SISTEMA DE FINANÇAS PESSOAIS
 ============================
 
-DESENVOLVEDOR: [Seu Nome]
+DESENVOLVEDORES: Felipe 
+                 Ronald
 DESCRIÇÃO: Sistema completo para gerenciamento de finanças pessoais com interface gráfica PyQt, banco de dados SQLite e API REST.
 
 FUNCIONALIDADES:
